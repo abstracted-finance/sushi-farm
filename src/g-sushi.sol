@@ -88,17 +88,6 @@ contract GSushi is DSMath, DSToken {
 
         // Transfer back SUSHI difference
         sushi.transfer(msg.sender, sub(_after, _before));
-
-        // Deposit rewards earned
-        if (_before > 0) {
-            uint256 _sushiBefore = univ2SushiEth.balanceOf(address(this));
-            _sushiToUniV2SushiEth(_before);
-            uint256 _sushiAfter = univ2SushiEth.balanceOf(address(this));
-            uint256 _sushiAmount = sub(_sushiAfter, _sushiBefore); // Additional check for deflationary tokens
-
-            univ2SushiEth.approve(address(masterchef), _sushiAmount);
-            masterchef.deposit(univ2SushiEthPoolId, _sushiAmount);
-        }
     }
 
     function depositAll() external {
