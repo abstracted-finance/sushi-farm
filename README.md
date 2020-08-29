@@ -4,7 +4,9 @@ Basically [yVaults](https://github.com/iearn-finance/vaults/blob/master/contract
 
 Deposit `$SUSHI` into the contract, and you get `gSushi`, a "grazing sushi" that will attempt to yield farm `$SUSHI`. Note that holding `gSushi` means that you're exposed to impermenant loss, as it provides liquidity to the ETH/SUSHI Univ2 pool behind the scenes to farm more `$SUSHI`.
 
-TL;DR: Hold `gSUSHI` if you're **LONG** `$SUSHI`
+TL;DR: Hold `gSUSHI` if you're **LONG** `$SUSHI`.
+
+Deployed at [0xA0508a94848fc6c1bed5597905cD7d2bbA4A959a](https://etherscan.io/address/0xa0508a94848fc6c1bed5597905cd7d2bba4a959a#readContract)
 
 ## Functions
 
