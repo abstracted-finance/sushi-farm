@@ -8,15 +8,16 @@ import "./interfaces/uniswap.sol";
 
 import "./constants.sol";
 
-// Graze Sushi in SushiSwap
+// Sushi Farm in SushiSwap
 // Used to farm sushi. i.e. Deposit into this pool if you want to LONG sushi.
 
 // Based off https://github.com/iearn-finance/vaults/blob/master/contracts/yVault.sol
-contract GSushi is DSMath, DSToken {
+contract SushiFarm is DSMath {
     // Tokens
     DSToken public sushi = DSToken(Constants.SUSHI);
     DSToken public univ2SushiEth = DSToken(Constants.UNIV2_SUSHI_ETH);
     DSToken public weth = DSToken(Constants.WETH);
+    DSToken public gSushi;
 
     // Uniswap Router and Pair
     UniswapRouterV2 public univ2 = UniswapRouterV2(Constants.UNIV2_ROUTER2);
@@ -32,8 +33,9 @@ contract GSushi is DSMath, DSToken {
     // Last harvest
     uint256 public lastHarvest = 0;
 
-    constructor() public DSToken(bytes32("gSushi")) {
-        name = bytes32("Grazing Sushi");
+    constructor() public {
+        gSushi = new DSToken("gSushi");
+        gSushi.setName("Grazing Sushi");
     }
 
     // **** Harvest profits ****
@@ -69,14 +71,14 @@ contract GSushi is DSMath, DSToken {
     // **** Withdraw / Deposit functions ****
 
     function withdrawAll() external {
-        withdraw(balanceOf[msg.sender]);
+        withdraw(gSushi.balanceOf(msg.sender));
     }
 
     function withdraw(uint256 _shares) public {
         uint256 univ2Balance = univ2SushiEthBalance();
 
-        uint256 amount = div(mul(_shares, univ2Balance), totalSupply);
-        burn(msg.sender, _shares);
+        uint256 amount = div(mul(_shares, univ2Balance), gSushi.totalSupply());
+        gSushi.burn(msg.sender, _shares);
 
         // Withdraw from Masterchef contract
         masterchef.withdraw(univ2SushiEthPoolId, amount);
@@ -105,17 +107,17 @@ contract GSushi is DSMath, DSToken {
         _amount = sub(_after, _before); // Additional check for deflationary tokens
 
         uint256 shares = 0;
-        if (totalSupply == 0) {
+        if (gSushi.totalSupply() == 0) {
             shares = _amount;
         } else {
-            shares = div(mul(_amount, totalSupply), _pool);
+            shares = div(mul(_amount, gSushi.totalSupply()), _pool);
         }
 
         // Deposit into Masterchef contract to get rewards
         univ2SushiEth.approve(address(masterchef), _amount);
         masterchef.deposit(univ2SushiEthPoolId, _amount);
 
-        mint(msg.sender, shares);
+        gSushi.mint(msg.sender, shares);
     }
 
     // Takes <x> amount of SUSHI
@@ -212,7 +214,7 @@ contract GSushi is DSMath, DSToken {
         uint256[] memory outs = univ2.getAmountsOut(removableWeth, path);
 
         // Get RATIO
-        return div(mul(add(outs[1], removableSushi), 1e18), totalSupply);
+        return div(mul(add(outs[1], removableSushi), 1e18), gSushi.totalSupply());
     }
 
     function univ2SushiEthBalance() public view returns (uint256) {

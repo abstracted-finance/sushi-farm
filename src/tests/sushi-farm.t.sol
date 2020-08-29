@@ -3,16 +3,18 @@ pragma solidity ^0.6.7;
 import "ds-token/token.sol";
 import "ds-math/math.sol";
 import "ds-test/test.sol";
+import "ds-auth/auth.sol";
 
 import "../interfaces/hevm.sol";
 import "../interfaces/weth.sol";
 
 import "../constants.sol";
-import "../g-sushi.sol";
+import "../sushi-farm.sol";
 
 contract GSushiTest is DSTest, DSMath {
     Hevm hevm;
-    GSushi gSushi;
+    SushiFarm sushiFarm;
+    DSToken gSushi;
     UniswapRouterV2 univ2;
 
     DSToken sushi;
@@ -23,7 +25,9 @@ contract GSushiTest is DSTest, DSMath {
         // https://github.com/dapphub/dapptools/pull/71
         hevm = Hevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
         univ2 = UniswapRouterV2(Constants.UNIV2_ROUTER2);
-        gSushi = new GSushi();
+
+        sushiFarm = new SushiFarm();
+        gSushi = sushiFarm.gSushi();
 
         sushi = DSToken(Constants.SUSHI);
         weth = WETH(Constants.WETH);
@@ -76,8 +80,8 @@ contract GSushiTest is DSTest, DSMath {
 
         uint256 sushiBal = 100 ether;
         _getSushi(sushiBal);
-        sushi.approve(address(gSushi), sushiBal);
-        gSushi.deposit(sushiBal);
+        sushi.approve(address(sushiFarm), sushiBal);
+        sushiFarm.deposit(sushiBal);
 
         uint256 finalGSushiBal = gSushi.balanceOf(address(this));
 
@@ -88,11 +92,12 @@ contract GSushiTest is DSTest, DSMath {
         uint256 sushiBal = 100 ether;
 
         _getSushi(sushiBal);
-        sushi.approve(address(gSushi), sushiBal);
-        gSushi.deposit(sushiBal);
+        sushi.approve(address(sushiFarm), sushiBal);
+        gSushi.approve(address(sushiFarm), uint256(-1));
+        sushiFarm.deposit(sushiBal);
 
         uint256 initialSushiBal = sushi.balanceOf(address(this));
-        gSushi.withdrawAll();
+        sushiFarm.withdrawAll();
         uint256 finalSushiBal = sushi.balanceOf(address(this));
 
         assertTrue(finalSushiBal > initialSushiBal);
@@ -107,36 +112,37 @@ contract GSushiTest is DSTest, DSMath {
         _getWeth(wethToAdd);
 
         // Approves
-        sushi.approve(address(gSushi), uint256(-1));
-        weth.approve(address(gSushi), uint256(-1));
+        sushi.approve(address(sushiFarm), uint256(-1));
+        weth.approve(address(sushiFarm), uint256(-1));
+        gSushi.approve(address(sushiFarm), uint256(-1));
 
         // Deposit
         _getSushi(1 ether);
-        gSushi.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
 
         // Send sushi + weth and then deposit again
         // This is so it converts the entire balance
         // into LP tokens
-        sushi.transfer(address(gSushi), sushiToAdd);
-        weth.transfer(address(gSushi), wethToAdd);
-        gSushi.harvest();
+        sushi.transfer(address(sushiFarm), sushiToAdd);
+        weth.transfer(address(sushiFarm), wethToAdd);
+        sushiFarm.harvest();
 
         uint256 initialSushiBal = sushi.balanceOf(address(this));
-        gSushi.withdrawAll();
+        sushiFarm.withdrawAll();
         uint256 finalSushiBal = sushi.balanceOf(address(this));
 
         assertTrue(sub(finalSushiBal, initialSushiBal) > 999 ether);
     }
 
     function test_gSushi_get_ratio() public {
-        uint256 initialRatio = gSushi.getGSushiOverSushiRatio();
+        uint256 initialRatio = sushiFarm.getGSushiOverSushiRatio();
 
         uint256 sushiBal = 100 ether;
         _getSushi(sushiBal);
-        sushi.approve(address(gSushi), sushiBal);
-        gSushi.deposit(sushiBal);
+        sushi.approve(address(sushiFarm), sushiBal);
+        sushiFarm.deposit(sushiBal);
 
-        uint256 finalRatio = gSushi.getGSushiOverSushiRatio();
+        uint256 finalRatio = sushiFarm.getGSushiOverSushiRatio();
 
         assertTrue(finalRatio > initialRatio);
     }
@@ -150,23 +156,23 @@ contract GSushiTest is DSTest, DSMath {
         _getWeth(wethToAdd);
 
         // Approves
-        sushi.approve(address(gSushi), uint256(-1));
-        weth.approve(address(gSushi), uint256(-1));
+        sushi.approve(address(sushiFarm), uint256(-1));
+        weth.approve(address(sushiFarm), uint256(-1));
 
         // Deposit
         _getSushi(1 ether);
-        gSushi.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
 
-        uint256 initialRatio = gSushi.getGSushiOverSushiRatio();
+        uint256 initialRatio = sushiFarm.getGSushiOverSushiRatio();
 
         // Send sushi + weth and then deposit again
         // This is so it converts the entire balance
         // into LP tokens
-        sushi.transfer(address(gSushi), sushiToAdd);
-        weth.transfer(address(gSushi), wethToAdd);
-        gSushi.harvest();
+        sushi.transfer(address(sushiFarm), sushiToAdd);
+        weth.transfer(address(sushiFarm), wethToAdd);
+        sushiFarm.harvest();
 
-        uint256 finalRatio = gSushi.getGSushiOverSushiRatio();
+        uint256 finalRatio = sushiFarm.getGSushiOverSushiRatio();
 
         // Has at accurred ~1000x premium
         assertTrue(finalRatio > initialRatio * 990);
@@ -174,19 +180,20 @@ contract GSushiTest is DSTest, DSMath {
 
     function test_gSushi_get_ratio3() public {
         // Approves
-        sushi.approve(address(gSushi), uint256(-1));
-        weth.approve(address(gSushi), uint256(-1));
+        sushi.approve(address(sushiFarm), uint256(-1));
+        weth.approve(address(sushiFarm), uint256(-1));
 
         // Deposit
         _getSushi(100 ether);
-        gSushi.deposit(100 ether);
+        sushiFarm.deposit(100 ether);
 
-        uint256 initialRatio = gSushi.getGSushiOverSushiRatio();
+        uint256 initialRatio = sushiFarm.getGSushiOverSushiRatio();
         uint256 gSushiBal = gSushi.balanceOf(address(this));
         uint256 expectedSushiBal = mul(gSushiBal, initialRatio) / 1e18;
 
         // Withdraw
-        gSushi.withdrawAll();
+        gSushi.approve(address(sushiFarm), uint256(-1));
+        sushiFarm.withdrawAll();
         uint256 sushiBal = sushi.balanceOf(address(this));
 
         // Roughly equals
@@ -199,39 +206,40 @@ contract GSushiTest is DSTest, DSMath {
 
     function test_gSushi_harvest() public {
         // Approves
-        sushi.approve(address(gSushi), uint256(-1));
-        weth.approve(address(gSushi), uint256(-1));
+        sushi.approve(address(sushiFarm), uint256(-1));
+        weth.approve(address(sushiFarm), uint256(-1));
 
         // Deposit
         _getSushi(100 ether);
-        gSushi.deposit(100 ether);
-        gSushi.harvest();
+        sushiFarm.deposit(100 ether);
+        sushiFarm.harvest();
 
         // Shouldn't be able to harvest
-        try gSushi.harvest()  {
-            log_named_string("gSushi.harvest", "harvest-should-fail");
+        try sushiFarm.harvest()  {
+            log_named_string("sushiFarm.harvest", "harvest-should-fail");
             assertTrue(false);
         } catch (bytes memory) {}
 
         // Warp
-        hevm.warp(gSushi.lastHarvest() + 1 hours + 1 minutes);
-        gSushi.harvest();
+        hevm.warp(sushiFarm.lastHarvest() + 1 hours + 1 minutes);
+        sushiFarm.harvest();
     }
 
     function test_gSushi_multiple_deposits_withdraw() public {
         // Approves
-        sushi.approve(address(gSushi), uint256(-1));
+        sushi.approve(address(sushiFarm), uint256(-1));
 
         // Deposit
         _getSushi(10 ether);
-        gSushi.deposit(1 ether);
-        gSushi.deposit(1 ether);
-        gSushi.deposit(1 ether);
-        gSushi.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
+        sushiFarm.deposit(1 ether);
 
         uint256 gSushibal = gSushi.balanceOf(address(this));
-        gSushi.withdraw(gSushibal / 4);
-        gSushi.withdraw(gSushibal / 4);
-        gSushi.withdraw(gSushibal / 4);
+        gSushi.approve(address(sushiFarm), uint256(-1));
+        sushiFarm.withdraw(gSushibal / 4);
+        sushiFarm.withdraw(gSushibal / 4);
+        sushiFarm.withdraw(gSushibal / 4);
     }
 }
