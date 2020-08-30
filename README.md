@@ -6,7 +6,14 @@ Deposit `$SUSHI` into the contract, and you get `gSushi`, a "grazing sushi" that
 
 TL;DR: Hold `gSUSHI` if you're **LONG** `$SUSHI`.
 
-Deployed at [0xA0508a94848fc6c1bed5597905cD7d2bbA4A959a](https://etherscan.io/address/0xa0508a94848fc6c1bed5597905cd7d2bba4a959a#readContract)
+- SushiFarm [0xA0508a94848fc6c1bed5597905cD7d2bbA4A959a](https://etherscan.io/address/0xa0508a94848fc6c1bed5597905cd7d2bba4a959a#readContract)
+- gSushi [0x339d73f9a0fbd064ea81f274437760a9db934806](https://etherscan.io/address/0x339d73f9a0fbd064ea81f274437760a9db934806)
+
+## This is Stupid
+
+> Your strategy doesn't make sense
+
+![](https://i.imgur.com/RXe6aHK.png)
 
 ## Functions
 
