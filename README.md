@@ -19,7 +19,7 @@ TL;DR: Hold `gSUSHI` if you're trying to accrue more `$SUSHI`.
 
 #### Harvest
 
-Only callable every hour. Harvests the SUSHI profits from the UNIV2-SUSHI-ETH pool. Function caller gets 5% of the profits to compensate for GAS.
+Only callable every hour. Harvests the SUSHI profits from the UNIV2-SUSHI-ETH pool. Function caller gets 0.05% of the profits to compensate for GAS.
 ```javascript
 harvest()
 ```
