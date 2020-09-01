@@ -1,32 +1,26 @@
 # Sushi Farmer Contracts.
 
-Basically [yVaults](https://github.com/iearn-finance/vaults/blob/master/contracts/yVault.sol) for sushi-swap's `$SUSHI`.
+Basically [yVaults](https://github.com/iearn-finance/vaults/blob/master/contracts/yVault.sol) that attempts to farm more UNIV2 SNX ETH LP tokens.
 
-Deposit `$SUSHI` into the contract, and you get `gSushi`, a "grazing sushi" that will attempt to yield farm `$SUSHI`. Note that holding `gSushi` means that you're exposed to impermenant loss, as it provides liquidity to the ETH/SUSHI Univ2 pool behind the scenes to farm more `$SUSHI`.
+Deposit `UNIV2 SNX ETH LP` into the contract, and you get `Degen UNIV2 SNX ETH LP`.
 
-TL;DR: Hold `gSUSHI` if you're trying to accrue more `$SUSHI`.
+TL;DR: Hold `Degen UNIV2 SNX ETH LP` if you're trying to accrue more `UNIV2 SNX ETH LP`.
 
-- SushiFarm [0xA0508a94848fc6c1bed5597905cD7d2bbA4A959a](https://etherscan.io/address/0xa0508a94848fc6c1bed5597905cd7d2bba4a959a#readContract)
-- gSushi [0x339d73f9a0fbd064ea81f274437760a9db934806](https://etherscan.io/address/0x339d73f9a0fbd064ea81f274437760a9db934806)
+- LPFarm [0xC9a6fbCb2541EcB37ed0D67C36d3E7B54A0a09cA](https://etherscan.io/address/0xC9a6fbCb2541EcB37ed0D67C36d3E7B54A0a09cA)
+- DegenLPToken [0x594000baf94b5185054cf7ba809d9ec089e2e62e](https://etherscan.io/address/0x594000baf94b5185054cf7ba809d9ec089e2e62e)
 
-## This is Stupid
-
-> Your strategy doesn't make sense
-
-![](https://i.imgur.com/RXe6aHK.png)
-
-## Functions
 
 #### Harvest
 
-Only callable every hour. Harvests the SUSHI profits from the UNIV2-SUSHI-ETH pool. Function caller gets 0.05% of the profits to compensate for GAS.
+ Harvests the SUSHI profits from the UNIV2-SUSHI-ETH pool. Function caller gets 2.5% of the profits to compensate for GAS, dev gets 2.5% of the profits to compensate for GAS while deploying contracts.
+
 ```javascript
 harvest()
 ```
 
 #### Deposit
 
-Converts normal `$SUSHI` into `gSushi`. (Sushi that grazes).
+Converts normal `UNIV2 SNX ETH LP` into `Degen UNIV2 SNX ETH LP`.
 
 ```javascript
 deposit(uint256 _amount)
@@ -38,7 +32,7 @@ depositAll()
 
 #### Withdraw
 
-Converts your `gSushi` (sushi that grazes) for normal `SUSHI`.
+Converts your `Degen UNIV2 SNX ETH LP` (sushi that grazes) for normal `UNIV2 SNX ETH LP`.
 
 ```javascript
 withdraw(uint256 _shares)
@@ -50,12 +44,12 @@ withdrawAll()
 
 #### Ratio between gSushi and Sushi (gSushi/SUSHI)
 
-How much `$SUSHI` does 1 `gSUSHI` yield?
+How much `UNIV2 SNX ETH LP` does 1 `Degen UNIV2 SNX ETH LP` yield?
 
-i.e. 1 gSUSHI = X SUSHI
+i.e. 1 `Degen UNIV2 SNX ETH LP` = X `UNIV2 SNX ETH LP`
 
 ```javascript
-getGSushiOverSushiRatio()
+getRatioPerShare()
 ```
 
 ## Testing

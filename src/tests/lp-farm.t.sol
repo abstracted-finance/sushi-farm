@@ -160,7 +160,7 @@ contract LPFarmTest is DSTest {
         lpFarm.withdrawAll();
         uint256 _after = lpToken.balanceOf(address(this));
 
-        assertTrue(_after > _before);
+        assertTrue(_after.sub(_before) == liquidity);
     }
 
     function test_multi_deposit_withdraw() public {
