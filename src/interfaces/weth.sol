@@ -9,4 +9,6 @@ interface WETH {
     function approve(address guy, uint256 wad) external returns (bool);
 
     function transfer(address dst, uint256 wad) external returns (bool);
+
+    function balanceOf(address dst) external returns (uint256);
 }

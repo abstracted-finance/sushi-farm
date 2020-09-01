@@ -4,7 +4,7 @@ import "ds-test/test.sol";
 
 import "../interfaces/hevm.sol";
 
-contract TimeTravel is DSTest {
+contract Cheats is DSTest {
     Hevm hevm;
 
     function setUp() public {
@@ -15,8 +15,13 @@ contract TimeTravel is DSTest {
 
     function test_basic_sanity() public {
         uint256 lastTime = now;
+        uint256 lastBlockNumber = block.number;
+
         bool isWarped = now > lastTime;
+        bool isRolled = block.number > lastBlockNumber;
+
         assertTrue(!isWarped);
+        assertTrue(!isRolled);
     }
 
     function test_can_time_travel() public {
@@ -28,4 +33,14 @@ contract TimeTravel is DSTest {
 
         assertTrue(isWarped);
     }
+
+    // function test_can_change_blocknumber() public {
+    //     uint256 lastBlockNumber = block.number;
+
+    //     hevm.roll(lastBlockNumber + 1);
+
+    //     bool isRolled = block.number > lastBlockNumber;
+
+    //     assertTrue(isRolled);
+    // }
 }

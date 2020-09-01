@@ -25,4 +25,6 @@ interface Masterchef {
         external
         view
         returns (uint256 amount, uint256 rewardDebt);
+
+    function updatePool(uint256 _pid) external;
 }
